@@ -1,4 +1,4 @@
-import asyncio
+Import asyncio
 import re
 import random
 from datetime import datetime
@@ -26,14 +26,22 @@ def force_sub_keyboard():
         [InlineKeyboardButton(text="⚡️ تحقق من الاشتراك الآن", callback_data="check_sub")]
     ])
 
-# 2. أزرار الترويج الشفافة تحت الرسالة للأعضاء
-def user_inline_keyboard():
+# 2. الأزرار الشفافة الفخمة لعرض البوت (نفس الصورة تماماً)
+def start_inline_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="➕ اضفني لمجموعتك 🧹", url="https://t.me/i80_ibot?startgroup=true")],
-        [InlineKeyboardButton(text="📢 قناة البوت الرسمية", url=CHANNEL_LINK)]
+        [
+            InlineKeyboardButton(text="➕ ( أضفني لمجموعتك )", url="https://t.me/i80_ibot?startgroup=true"),
+            InlineKeyboardButton(text="📢 ( قناتنا الرسمية )", url=CHANNEL_LINK)
+        ],
+        [
+            InlineKeyboardButton(text="📋 ( قائمة الاوامر )", callback_data="commands_menu")
+        ],
+        [
+            InlineKeyboardButton(text="🕷️ ( تواصل مع المطور )", url="https://t.me/i80_ii")
+        ]
     ])
 
-# 3. لوحة تحكم المطور الأساسي فقط (سورس يجوي)
+# 3. كيبورد إدارة المطور الأساسي فقط
 def admin_reply_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -50,7 +58,7 @@ def admin_reply_keyboard():
         persistent=True
     )
 
-# 4. كيبورد الأعضاء الفخم والترفيهي (نفس الصورة تماماً)
+# 4. كيبورد الأعضاء الترفيهي (يظهر عند طلب قائمة الأوامر)
 def user_reply_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -79,7 +87,6 @@ async def check_subscription(user_id: int) -> bool:
     except Exception:
         return True
 
-# بنك الردود العفوية
 AUTO_RESPONSES = {
     "اراس": ["عيوني 🤍", "موجود يا قلبي، آمرني؟ 😊", "سمعني، وش بغيت يا غالي؟ ✨", "روحه وعيونه لأراس 🖤"],
     "صباح الخير": ["صباح النور والسرور ✨🌸", "صباحك يسعد روحك يا رب 🤍"],
@@ -100,7 +107,6 @@ async def start_cmd(message: types.Message):
         )
         return
 
-    # التفرقة بين المطور والأعضاء
     if message.from_user.id == ADMIN_ID:
         welcome = (
             f"🕷️ **! Aras**\n/start\n\n"
@@ -109,14 +115,42 @@ async def start_cmd(message: types.Message):
         )
         await message.answer(welcome, reply_markup=admin_reply_keyboard(), parse_mode="Markdown")
     else:
-        welcome = (
-            f"👋 **أهلاً بك يا {message.from_user.first_name} في بوت أراس (Aras)**\n\n"
-            f"• اضف البوت الى مجموعتك .\n"
+        # تصميم الرسالة الاحترافية تماماً مثل الصور المطلوبة
+        welcome_text = (
+            f"• أهلاً بك عزيزي انا بوت اسمه **أراس** .\n"
+            f"• اختصاص البوت حماية المجموعات .\n"
+            f"• اضلع البوت الى مجموعتك .\n"
             f"• ارفعه ادمن مشرف .\n"
-            f"• ارسل تفعيل ليتم تفعيل المجموعه تلقائياً .\n\n"
-            f"✨ **استمتع بالقوائم والأقسام الترفيهية بالأسفل:**"
+            f"• ارفعه مشرف وارسل تفعيل ليتم تفعيل المجموعة .\n"
+            f"• مطور البوت ↩️ [ رامي ]({CHANNEL_LINK})\n\n"
+            f"✨ **اختر ما تريده من الأزرار بالأسفل:**"
         )
-        await message.answer(welcome, reply_markup=user_reply_keyboard(), parse_mode="Markdown")
+        
+        # إرسال صورة افتار فخمة مع النص والأزرار الشفافة
+        photo_url = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
+        try:
+            await message.answer_photo(
+                photo=photo_url,
+                caption=welcome_text,
+                reply_markup=start_inline_keyboard(),
+                parse_mode="Markdown"
+            )
+        except Exception:
+            await message.answer(
+                text=welcome_text,
+                reply_markup=start_inline_keyboard(),
+                parse_mode="Markdown"
+            )
+
+# الاستجابة لزر قائمة الأوامر الشفاف
+@dp.callback_query(F.data == "commands_menu")
+async def commands_menu_callback(call: types.CallbackQuery):
+    await call.message.delete()
+    await call.message.answer(
+        "📋 **قائمة الأوامر والأقسام الترفيهية:**\nاختر ما يناسبك من لوحة المفاتيح بالأسفل 👇",
+        reply_markup=user_reply_keyboard(),
+        parse_mode="Markdown"
+    )
 
 # زر التحقق من الاشتراك
 @dp.callback_query(F.data == "check_sub")
@@ -127,30 +161,40 @@ async def check_sub_callback(call: types.CallbackQuery):
         if call.from_user.id == ADMIN_ID:
             await call.message.answer("✅ تم التحقق بنجاح! أهلاً بك يا المطور.", reply_markup=admin_reply_keyboard())
         else:
-            await call.message.answer("✅ تم التحقق بنجاح! أهلاً بك في أراس.", reply_markup=user_reply_keyboard())
+            welcome_text = (
+                f"✅ **تم التحقق بنجاح! أهلاً بك يا {call.from_user.first_name}**\n\n"
+                f"• اختصاص البوت حماية المجموعات .\n"
+                f"• اضلع البوت الى مجموعتك وارفعني مشرف."
+            )
+            await call.message.answer_photo(
+                photo="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop",
+                caption=welcome_text,
+                reply_markup=start_inline_keyboard(),
+                parse_mode="Markdown"
+            )
     else:
         await call.answer("❌ ما زلت غير مشترك! اشترك غصباً بالقناة أولاً ⚡️", show_alert=True)
 
 # ----------------- ردود كيبورد الأعضاء الترفيهي -----------------
 USER_RESPONSES = {
-    "🧹 الختمه": "📖 **قسم الختمة المباركة:**\nشارِك في ختمة القرآن الكريم مع أعضاء البوت.",
-    "🧹 اذكار": "🤲 **أذكار المسلم:**\n«أَلا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ»\n• أذكار الصباح والمساء والسبحة الإلكترونية جاهزة.",
-    "🧹 قرآن": "🎧 **القرآن الكريم:**\nاستمع وتصفح تلاوات خاشعة بأصوات أشهر القراء.",
-    "🧹 اقتباسات": "💬 **اقتباسات:**\n«لا تقاس العقول بالأعمار، فكم من صغير عقله بارع، وكم من كبير عقله فارغ.»",
-    "🧹 شعر": "📜 **قصائد وأشعار:**\n«عشنا كالأساطير، لا نُرى إلا حيث ترغب هيبتنا ..»",
-    "🧹 قسم القيفات": "🎬 **قسم المتحركات (GIFs):**\nأجمل الصور المتحركة والأشكال الفخمة جاهزة للتحميل.",
-    "🧹 قسم الافتارات": "🖼️ **قسم الافتارات:**\nافتارات شبابية، بنات، وهيدرات سينمائية عالية الدقة.",
-    "🧹 كتب": "📚 **مكتبة الكتب:**\nتصفح ورشح أفضل الكتب والروايات المترجمة.",
-    "🧹 ثريد": "🧵 **ثريدات ومتنوعات:**\nقصص واقعية ومعلومات مفيدة وقصيرة.",
-    "🧹 هيدرات": "🌆 **قسم الهيدرات:**\nهيدرات وتصاميم للبروفايل وتلجرام.",
-    "🧹 جداريات": "🎨 **جداريات:**\nعبارات وجداريات مكتوبة على الجدران بروح إبداعية.",
-    "🧹 اغاني": "🎶 **قسم الصوتيات والموسيقى:**\nاستمع لجديد الصوتيات والشيلات.",
-    "🧹 اطربني": "🎧 **اطربني:**\nمقاطع صوتية مميزة وذوق عالي.",
-    "🧹 افلام": "🍿 **قسم الأفلام والمسلسلات:**\nترشيحات واقتراحات لأقوى الأفلام والمسلسلات العالمية.",
-    "🧹 قصص": "📖 **قصص وحكايات:**\nقصص غامضة وحكايات قبل النوم.",
-    "🧹 ايدت": "🎥 **تصاميم وإيدت:**\nفيديوهات وتصاميم مونتاج بدقة عالية.",
-    "🧹 ميمز": "😂 **قسم الميمز والضحك:**\nأحدث الميمز والنكت للترفيح عن المجموعات.",
-    "🧹 مميزات اخرى": "✨ **المميزات الإضافية:**\n• الألعاب (/صراحة، /لو_خيروك، /تحدي، /لغز)\n• بطاقة الايدي (ارسل كلمة 'ايدي')\n• حماية المجموعات التلقائية."
+    "🕷 الختمه": "📖 **قسم الختمة المباركة:**\nشارِك في ختمة القرآن الكريم مع أعضاء البوت.",
+    "🕷 اذكار": "🤲 **أذكار المسلم:**\n«أَلا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ»\n• أذكار الصباح والمساء والسبحة الإلكترونية جاهزة.",
+    "🕷 قرآن": "🎧 **القرآن الكريم:**\nاستمع وتصفح تلاوات خاشعة بأصوات أشهر القراء.",
+    "🕷 اقتباسات": "💬 **اقتباسات:**\n«لا تقاس العقول بالأعمار، فكم من صغير عقله بارع، وكم من كبير عقله فارغ.»",
+    "🕷 شعر": "📜 **قصائد وأشعار:**\n«عشنا كالأساطير، لا نُرى إلا حيث ترغب هيبتنا ..»",
+    "🕷 قسم القيفات": "🎬 **قسم المتحركات (GIFs):**\nأجمل الصور المتحركة والأشكال الفخمة جاهزة للتحميل.",
+    "🕷 قسم الافتارات": "🖼️ **قسم الافتارات:**\nافتارات شبابية، بنات، وهيدرات سينمائية عالية الدقة.",
+    "🕷 كتب": "📚 **مكتبة الكتب:**\nتصفح ورشح أفضل الكتب والروايات المترجمة.",
+    "🕷 ثريد": "🧵 **ثريدات ومتنوعات:**\nقصص واقعية ومعلومات مفيدة وقصيرة.",
+    "🕷 هيدرات": "🌆 **قسم الهيدرات:**\nهيدرات وتصاميم للبروفايل وتلجرام.",
+    "🕷 جداريات": "🎨 **جداريات:**\nعبارات وجداريات مكتوبة على الجدران بروح إبداعية.",
+    "🕷 اغاني": "🎶 **قسم الصوتيات والموسيقى:**\nاستمع لجديد الصوتيات والشيلات.",
+    "🕷 اطربني": "🎧 **اطربني:**\nمقاطع صوتية مميزة وذوق عالي.",
+    "🕷 افلام": "🍿 **قسم الأفلام والمسلسلات:**\nترشيحات واقتراحات لأقوى الأفلام والمسلسلات العالمية.",
+    "🕷 قصص": "📖 **قصص وحكايات:**\nقصص غامضة وحكايات قبل النوم.",
+    "🕷 ايدت": "🎥 **تصاميم وإيدت:**\nفيديوهات وتصاميم مونتاج بدقة عالية.",
+    "🕷 ميمز": "😂 **قسم الميمز والضحك:**\nأحدث الميمز والنكت للترفيح عن المجموعات.",
+    "🕷 مميزات اخرى": "✨ **المميزات الإضافية:**\n• الألعاب (/صراحة، /لو_خيروك، /تحدي، /لغز)\n• بطاقة الايدي (ارسل كلمة 'ايدي')\n• حماية المجموعات التلقائية."
 }
 
 @dp.message(F.text.in_(USER_RESPONSES.keys()))
@@ -200,11 +244,11 @@ async def user_id_info(message: types.Message):
 
     username = f"@{user.username}" if user.username else "لا يوجد"
     info_text = (
-        f"▪️ : مو صوره ضيم\n"
-        f"▪️ : ايديك ↩️ [ `{user.id}` ]\n"
-        f"▪️ : معرفك ↩️ [ {username} ]\n"
-        f"▪️ : رتبتك ↩️ [ {rank} ]\n"
-        f"▪️ : تفاعلك ↩️ [ ممتاز جداً ]"
+        f"▪️ : احيهه حسابكك فخم\n"
+        f"▪️ : ايديك 🕸 [ `{user.id}` ]\n"
+        f"▪️ : معرفك 🕸 [ {username} ]\n"
+        f"▪️ : رتبتك 🕸 [ {rank} ]\n"
+        f"▪️ : تفاعلك 🕸 [ ممتاز جداً ]"
     )
 
     user_photos = await bot.get_user_profile_photos(user.id, limit=1)
@@ -229,9 +273,9 @@ async def welcome_new_member(message: types.Message):
             f"═'𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 . 𝐆𝐑𝐎𝐔𝐏 ═\n"
             f"°•--------------•°\n"
             f"° : نورت جروبنا يا ⦗ {new_member.first_name} ⦘🥂✨.\n"
-            f"° : اسمك ↩️ ⦗ {new_member.first_name} ⦘\n"
-            f"° : ايديك ↩️ ⦗ `{new_member.id}` ⦘\n"
-            f"° : يوزرك ↩️ ⦗ {username} ⦘\n\n"
+            f"° : اسمك ⚡️ ⦗ {new_member.first_name} ⦘\n"
+            f"° : ايديك ⚡️ ⦗ `{new_member.id}` ⦘\n"
+            f"° : يوزرك ⚡️ ⦗ {username} ⦘\n\n"
             f"❞ ° : تاريخ انضمامك 📷 {date_str}\n"
             f"❞ ° : الساعة 📷 {time_str}.\n"
             f"°•--------------•°"
@@ -239,11 +283,11 @@ async def welcome_new_member(message: types.Message):
         try:
             user_photos = await bot.get_user_profile_photos(new_member.id, limit=1)
             if user_photos.total_count > 0:
-                await message.reply_photo(photo=user_photos.photos[0][-1].file_id, caption=welcome_text, parse_mode="Markdown")
+                await message.reply_photo(photo=user_photos.photos[0][-1].file_id, caption=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
             else:
-                await message.reply(text=welcome_text, parse_mode="Markdown")
+                await message.reply(text=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
         except Exception:
-            await message.reply(text=welcome_text, parse_mode="Markdown")
+            await message.reply(text=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
 
 # المعالجة العامة للرسائل والروابط
 @dp.message(F.text)
