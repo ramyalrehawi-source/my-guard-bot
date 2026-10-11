@@ -12,7 +12,7 @@ from aiogram.types import (
 )
 
 TOKEN = "8963723966:AAE7qIh7ci0w4tROnYdvP-6KoOzWMn74AEo"
-ADMIN_ID = 8921676913  # آيدي الخاص بك
+ADMIN_ID = 8921676913  # آيدي الإدارة الخاص بك (خلف الكواليس فقط)
 CHANNEL_USERNAME = "@i80_ii"
 CHANNEL_LINK = "https://t.me/+Nf1ReXca_D45ODg0"
 
@@ -24,7 +24,7 @@ def start_inline_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="➕ ( أضفني لمجموعتك )", url="https://t.me/i80_ibot?startgroup=true"),
-            InlineKeyboardButton(text="📢 ( قناتنا الرسمية )", url=CHANNEL_LINK)
+            InlineKeyboardButton(text="📢 ( قناة خواطر بحبر اسود 🪶 )", url=CHANNEL_LINK)
         ],
         [
             InlineKeyboardButton(text="📋 ( قائمة الاوامر )", callback_data="commands_menu")
@@ -34,7 +34,7 @@ def start_inline_keyboard():
         ]
     ])
 
-# لوحة تحكم المطور الأساسي
+# لوحة تحكم المطور (خاصة بك وحدك)
 def admin_reply_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -74,7 +74,7 @@ def user_reply_keyboard():
 async def start_cmd(message: types.Message):
     if message.from_user.id == ADMIN_ID:
         await message.answer(
-            "🕷️ **أهلاً بك عزيزي المطور الأساسي (رامي)**\nإليك لوحة تحكم السورس:",
+            "🕷️ **أهلاً بك عزيزي المطور**\nإليك لوحة تحكم السورس:",
             reply_markup=admin_reply_keyboard(),
             parse_mode="Markdown"
         )
@@ -83,7 +83,8 @@ async def start_cmd(message: types.Message):
             f"• أهلاً بك عزيزي انا بوت اسمه **أراس** .\n"
             f"• اختصاص البوت حماية المجموعات .\n"
             f"• اضلع البوت الى مجموعتك وارفعني مشرف.\n"
-            f"• مطور البوت ↩️ [ رامي ]({CHANNEL_LINK})\n\n"
+            f"• مطور البوت ↩️ [@i80_ii]({CHANNEL_LINK})\n"
+            f"• القناة ↩️ **خواطر بحبر اسود 🪶**\n\n"
             f"✨ **اختر ما تريده من الأزرار بالأسفل:**"
         )
         try:
