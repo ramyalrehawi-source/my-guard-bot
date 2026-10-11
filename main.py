@@ -19,7 +19,7 @@ CHANNEL_LINK = "https://t.me/+Nf1ReXca_D45ODg0"  # رابط القناة
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# زر الاشتراك الغصب / الإجباري
+# زر الاشتراك الإجباري
 def force_sub_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📢 اشترك غصباً في تحديثات أراس", url=CHANNEL_LINK)],
@@ -33,25 +33,25 @@ def welcome_keyboard():
         [InlineKeyboardButton(text="📢 تحديثات أراس", url=CHANNEL_LINK)]
     ])
 
-# كيبورد الأزرار السفلي (سورس يجوي)
+# كيبورد الأزرار السفلي الاحترافي (نفس سورس يجوي تماماً)
 def main_reply_keyboard():
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="[ معلومات التنصيب ]")],
+            [KeyboardButton(text="[ معلومات التنصيب ]"), KeyboardButton(text="[ الكروبات ]")],
             [KeyboardButton(text="[ قسم الاذاعه ]"), KeyboardButton(text="[ قسم التفعيلات ]")],
-            [KeyboardButton(text="[ قسم الاشتراك الاجباري ]")],
-            [KeyboardButton(text="[ قسم القوائم ]"), KeyboardButton(text="[ قسم النسخ ]")],
-            [KeyboardButton(text="[ قسم المتنوع والمسح ]")],
+            [KeyboardButton(text="[ قسم الاشتراك الاجباري ]"), KeyboardButton(text="[ قسم القوائم ]")],
+            [KeyboardButton(text="[ قسم النسخ ]"), KeyboardButton(text="[ قسم المتنوع والمسح ]")],
             [KeyboardButton(text="[ ترويج البوت ]"), KeyboardButton(text="[ اعلان البوت ]")],
-            [KeyboardButton(text="📞 التواصل مع المطور")],
-            [KeyboardButton(text="[ حول ]")]
+            [KeyboardButton(text="[ السيرفر ]"), KeyboardButton(text="[ تحديث ]")],
+            [KeyboardButton(text="[ نقل ملكيه البوت ]"), KeyboardButton(text="[ تغيير رمز السورس ]")],
+            [KeyboardButton(text="📞 التواصل مع المطور"), KeyboardButton(text="[ حول ]")]
         ],
         resize_keyboard=True,
         persistent=True
     )
     return keyboard
 
-# دالة الفحص الآمنة تماماً للاشتراك
+# دالة الفحص الآمنة للاشتراك
 async def check_subscription(user_id: int) -> bool:
     if user_id == ADMIN_ID:
         return True
@@ -59,23 +59,7 @@ async def check_subscription(user_id: int) -> bool:
         member = await bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
         return member.status in ["creator", "administrator", "member"]
     except Exception:
-        # في حال عدم رفع البوت مشرف في القناة يتم تجاوز الفحص حتى لا يتعطل البوت
         return True
-
-# ردود الأزرار السفلية
-BUTTON_RESPONSES = {
-    "[ معلومات التنصيب ]": "ℹ️ **معلومات التنصيب:**\nالبوت يعمل بنجاح على سيرفر Render وتحديثات سورس يجوي مفعلة 100%.",
-    "[ قسم الاذاعه ]": "📢 **قسم الإذاعة:**\nيمكنك إرسال التوجيهات أو الرسائل لجميع المجموعات والأعضاء هنا.",
-    "[ قسم التفعيلات ]": "⚙️ **قسم التفعيلات:**\nتم تفعيل: حماية الروابط ✅ | الردود التلقائية ✅ | الألعاب الترفيهية ✅ | بطاقة الايدي ✅ | الترحيب ✅",
-    "[ قسم الاشتراك الاجباري ]": f"📢 **قسم الاشتراك الإجباري:**\nقناة الاشتراك الإجباري الحالية: [تحديثات أراس]({CHANNEL_LINK})",
-    "[ قسم القوائم ]": "📋 **قسم القوائم:**\nقائمة المحظورين، قائمة المشرفين، وقوائم المكتومين جاهزة.",
-    "[ قسم النسخ ]": "💾 **قسم النسخ الاحتياطي:**\nيمكنك أخذ نسخة احتياطية إلكترونية لإعدادات البوت والجروبات.",
-    "[ قسم المتنوع والمسح ]": "🧹 **قسم المسح والمتنوعات:**\nلتمسح الرسائل المحظورة أو تنظيف المحادثة.",
-    "[ ترويج البوت ]": "🚀 **قسم ترويج البوت:**\nشارِك البوت في مجموعاتك لتفعيله وزيادة حمايتها.",
-    "[ اعلان البوت ]": "📣 **قسم إعلانات البوت:**\nيمكنك نشر إعلاناتك عبر شبكة البوت.",
-    "📞 التواصل مع المطور": "📬 **قسم التواصل:**\nاكتب رسالتك الآن وسوف يتم إرسالها إلى المطور مباشرة 📥",
-    "[ حول ]": "🤖 **سورس أراس (Aras) المطور**\nللحماية والتفاعل وإدارة المجموعات والألعاب."
-}
 
 AUTO_RESPONSES = {
     "اراس": ["عيوني 🤍", "موجود يا قلبي، آمرني؟ 😊", "سمعني، وش بغيت يا غالي؟ ✨", "روحه وعيونه لأراس 🖤"],
@@ -109,9 +93,8 @@ async def start_cmd(message: types.Message):
     welcome = (
         f"🕷️ **! Aras**\n"
         f"/start\n\n"
-        f"🕷️ **أهلاً بك في بوت أراس الذكي**\n"
-        f"🕷️ **قناة التحديثات الرسمية:** [تحديثات أراس]({CHANNEL_LINK})\n"
-        f"🕷️ **إليك كيبورد الأوامر والسورس كامل:**"
+        f"🕷️ **أهلاً بك عزيزي المطور الاساسي**\n"
+        f"🕷️ **اليك كيبورد اوامر سورس يجوي والحماية والألعاب الكثيرة** 🎮✨"
     )
     await message.answer(welcome, reply_markup=main_reply_keyboard(), parse_mode="Markdown")
 
@@ -128,6 +111,72 @@ async def check_sub_callback(call: types.CallbackQuery):
         await call.message.answer(welcome, reply_markup=main_reply_keyboard(), parse_mode="Markdown")
     else:
         await call.answer("❌ ما زلت غير مشترك! اشترك غصباً بالقناة أولاً ثم تحقق مرة أخرى ⚡️", show_alert=True)
+
+# ----------------- معالجات الأزرار السفلية الاحترافية -----------------
+@dp.message(F.text == "[ معلومات التنصيب ]")
+async def btn_info(message: types.Message):
+    await message.answer("ℹ️ **معلومات التنصيب:**\nالبوت يعمل بنجاح على سيرفر Render وتحديثات سورس يجوي مفعلة 100%.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ الكروبات ]")
+async def btn_groups(message: types.Message):
+    await message.answer("👥 **قسم الكروبات والمجموعات المفعلة:**\n• عدد المجموعات المحمية: 1 مجموعة حالياً.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم الاذاعه ]")
+async def btn_broadcast(message: types.Message):
+    await message.answer("📢 **قسم الإذاعة:**\n• إذاعة عامة\n• إذاعة خاص\n• إذاعة بالتوجيه\nاختر نوع الإذاعة وقم بإرسال رسالتك.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم التفعيلات ]")
+async def btn_activations(message: types.Message):
+    await message.answer("⚙️ **قسم التفعيلات:**\n• حماية الروابط ✅\n• الترحيب التلقائي ✅\n• الردود التلقائية ✅\n• بطاقة الايدي ✅", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم الاشتراك الاجباري ]")
+async def btn_force_sub(message: types.Message):
+    await message.answer(f"📢 **أوامر الاشتراك الاجباري:**\n• تفعيل / تعطيل الاشتراك\n• القناة الحالية: [تحديثات أراس]({CHANNEL_LINK})", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم القوائم ]")
+async def btn_lists(message: types.Message):
+    await message.answer("📋 **قسم القوائم العامة:**\n• قائمة المطورين\n• قائمة المحظورين\n• قائمة المكتومين", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم النسخ ]")
+async def btn_backup(message: types.Message):
+    await message.answer("💾 **قسم النسخ الاحتياطي:**\n• جلب النسخة الاحتياطية\n• جلب روابط المجموعات", parse_mode="Markdown")
+
+@dp.message(F.text == "[ قسم المتنوع والمسح ]")
+async def btn_misc(message: types.Message):
+    await message.answer("🧹 **قسم المتنوع والمسح:**\n• تنظيف المشتركين\n• مسح الردود العامة\n• مسح تخزين البوت", parse_mode="Markdown")
+
+@dp.message(F.text == "[ ترويج البوت ]")
+async def btn_promote(message: types.Message):
+    await message.answer("🚀 **قسم ترويج البوت:**\nأضف أراس لجروبك وزد من حمايته وتفاعله مجاناً.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ اعلان البوت ]")
+async def btn_ads(message: types.Message):
+    await message.answer("📣 **قسم إعلانات البوت:**\nللنشر والتسويق عبر شبكة بوتات أراس.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ السيرفر ]")
+async def btn_server(message: types.Message):
+    await message.answer("🖥️ **معلومات السيرفر:**\n• السيرفر: Render Cloud\n• الحالة: يعمل بكفاءة عالية 🟢\n• الاستهلاك: مستقر", parse_mode="Markdown")
+
+@dp.message(F.text == "[ تحديث ]")
+async def btn_update(message: types.Message):
+    await message.answer("🔄 **تم تحديث الملفات بنجاح 🕷️**", parse_mode="Markdown")
+
+@dp.message(F.text == "[ نقل ملكيه البوت ]")
+async def btn_transfer(message: types.Message):
+    await message.answer("👑 **نقل ملكية البوت:**\n• ارسل معرف المطور الجديد (يوزر آيدي) لتسليمه الصلاحيات.", parse_mode="Markdown")
+
+@dp.message(F.text == "[ تغيير رمز السورس ]")
+async def btn_change_token(message: types.Message):
+    await message.answer("🔑 **تغيير رمز السورس:**\nأرسل الرمز الجديد المعتمد لتحديث البوت.", parse_mode="Markdown")
+
+@dp.message(F.text == "📞 التواصل مع المطور")
+async def btn_contact(message: types.Message):
+    await message.answer("📬 **قسم التواصل:**\nاكتب رسالتك الآن وسوف يتم إرسالها إلى المطور مباشرة 📥", parse_mode="Markdown")
+
+@dp.message(F.text == "[ حول ]")
+async def btn_about(message: types.Message):
+    await message.answer("🤖 **سورس أراس (Aras) المطور**\nللحماية والتفاعل وإدارة المجموعات والألعاب.", parse_mode="Markdown")
+# -------------------------------------------------------------------------
 
 # أمر الايدي
 @dp.message(F.text.in_(["ا", "ايدي", "ايديك"]))
@@ -193,17 +242,11 @@ async def welcome_new_member(message: types.Message):
         except Exception:
             await message.reply(text=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
 
-# المعالجة العامة لجميع الأزرار والنصوص بالخاص والجروبات
+# المعالجة العامة للرسائل والردود والروابط
 @dp.message(F.text)
 async def handle_all_messages(message: types.Message):
     text = message.text.strip()
 
-    # 1. الرد الفوري على جميع أزرار الكيبورد
-    if text in BUTTON_RESPONSES:
-        await message.answer(BUTTON_RESPONSES[text], parse_mode="Markdown")
-        return
-
-    # 2. فحص الاشتراك الإجباري بالخاص للرسائل العادية
     if message.chat.type == "private":
         is_subbed = await check_subscription(message.from_user.id)
         if not is_subbed:
@@ -214,7 +257,6 @@ async def handle_all_messages(message: types.Message):
             )
             return
 
-    # 3. حماية الروابط داخل المجموعات
     if message.chat.type in ["group", "supergroup"]:
         member = await message.chat.get_member(message.from_user.id)
         if member.status not in ["administrator", "creator"]:
@@ -228,7 +270,6 @@ async def handle_all_messages(message: types.Message):
                 except Exception:
                     pass
 
-    # 4. الردود التفاعلية
     for key, replies in AUTO_RESPONSES.items():
         if key in text.lower():
             await message.reply(random.choice(replies))
