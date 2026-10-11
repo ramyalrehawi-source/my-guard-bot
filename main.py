@@ -23,7 +23,7 @@ dp = Dispatcher()
 def force_sub_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📢 اشترك غصباً في تحديثات أراس", url=CHANNEL_LINK)],
-        [InlineKeyboardButton(text="⚡️ تحقق من الاشتراك الان", callback_data="check_sub")]
+        [InlineKeyboardButton(text="⚡️ تحقق من الاشتراك الآن", callback_data="check_sub")]
     ])
 
 # أزرار الترحيب الشفافة
@@ -51,22 +51,23 @@ def main_reply_keyboard():
     )
     return keyboard
 
-# دالة الفحص الصارم للاشتراك
+# دالة الفحص الآمنة تماماً للاشتراك
 async def check_subscription(user_id: int) -> bool:
     if user_id == ADMIN_ID:
-        return True  # المطور يتجاوز الفحص تلقائياً
+        return True
     try:
         member = await bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
         return member.status in ["creator", "administrator", "member"]
     except Exception:
-        return True  # في حال عدم رفع البوت مشرف في القناة يتجاوز الفحص مؤقتاً
+        # في حال عدم رفع البوت مشرف في القناة يتم تجاوز الفحص حتى لا يتعطل البوت
+        return True
 
 # ردود الأزرار السفلية
 BUTTON_RESPONSES = {
     "[ معلومات التنصيب ]": "ℹ️ **معلومات التنصيب:**\nالبوت يعمل بنجاح على سيرفر Render وتحديثات سورس يجوي مفعلة 100%.",
     "[ قسم الاذاعه ]": "📢 **قسم الإذاعة:**\nيمكنك إرسال التوجيهات أو الرسائل لجميع المجموعات والأعضاء هنا.",
     "[ قسم التفعيلات ]": "⚙️ **قسم التفعيلات:**\nتم تفعيل: حماية الروابط ✅ | الردود التلقائية ✅ | الألعاب الترفيهية ✅ | بطاقة الايدي ✅ | الترحيب ✅",
-    "[ قسم الاشتراك الاجباري ]": f"📢 **قسم الاشتراك الغصب:**\nقناة الاشتراك الإجباري الحالية: [تحديثات أراس]({CHANNEL_LINK})",
+    "[ قسم الاشتراك الاجباري ]": f"📢 **قسم الاشتراك الإجباري:**\nقناة الاشتراك الإجباري الحالية: [تحديثات أراس]({CHANNEL_LINK})",
     "[ قسم القوائم ]": "📋 **قسم القوائم:**\nقائمة المحظورين، قائمة المشرفين، وقوائم المكتومين جاهزة.",
     "[ قسم النسخ ]": "💾 **قسم النسخ الاحتياطي:**\nيمكنك أخذ نسخة احتياطية إلكترونية لإعدادات البوت والجروبات.",
     "[ قسم المتنوع والمسح ]": "🧹 **قسم المسح والمتنوعات:**\nلتمسح الرسائل المحظورة أو تنظيف المحادثة.",
@@ -91,7 +92,7 @@ GAMES_DATA = {
     "ألغاز": ["💡 لغز ذكاء: شيء يبتلعك إذا ما انتبهت له، وكل ما أخذت منه يكبر ولا ينقص فما هو؟ (الحفرة)"]
 }
 
-# أمر البدء مع الفحص الغصب
+# أمر البدء الرئيسي
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     is_subbed = await check_subscription(message.from_user.id)
@@ -176,6 +177,65 @@ async def welcome_new_member(message: types.Message):
             f"═'𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 . 𝐆𝐑𝐎𝐔𝐏 ═\n"
             f"°•--------------•°\n"
             f"° : نورت جروبنا يا ⦗ {new_member.first_name} ⦘🥂✨.\n"
-            f"° : اسمك 🦂 ⦗ {new_member.first_name} ⦘\n"
-            f"° : ايديك 🦂 ⦗ `{new_member.id}` ⦘\n"
-            f"° : يوزرك 🦂 ⦗ {username
+            f"° : اسمك ↩️ ⦗ {new_member.first_name} ⦘\n"
+            f"° : ايديك ↩️ ⦗ `{new_member.id}` ⦘\n"
+            f"° : يوزرك ↩️ ⦗ {username} ⦘\n\n"
+            f"❞ ° : تاريخ انضمامك 📷 {date_str}\n"
+            f"❞ ° : الساعة 📷 {time_str}.\n"
+            f"°•--------------•°"
+        )
+        try:
+            user_photos = await bot.get_user_profile_photos(new_member.id, limit=1)
+            if user_photos.total_count > 0:
+                await message.reply_photo(photo=user_photos.photos[0][-1].file_id, caption=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
+            else:
+                await message.reply(text=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
+        except Exception:
+            await message.reply(text=welcome_text, reply_markup=welcome_keyboard(), parse_mode="Markdown")
+
+# المعالجة العامة لجميع الأزرار والنصوص بالخاص والجروبات
+@dp.message(F.text)
+async def handle_all_messages(message: types.Message):
+    text = message.text.strip()
+
+    # 1. الرد الفوري على جميع أزرار الكيبورد
+    if text in BUTTON_RESPONSES:
+        await message.answer(BUTTON_RESPONSES[text], parse_mode="Markdown")
+        return
+
+    # 2. فحص الاشتراك الإجباري بالخاص للرسائل العادية
+    if message.chat.type == "private":
+        is_subbed = await check_subscription(message.from_user.id)
+        if not is_subbed:
+            await message.answer(
+                f"⛔️ **عذراً! الاشتراك غصباً في [قناة تحديثات أراس]({CHANNEL_LINK}) لتفعيل البوت!**",
+                reply_markup=force_sub_keyboard(),
+                parse_mode="Markdown"
+            )
+            return
+
+    # 3. حماية الروابط داخل المجموعات
+    if message.chat.type in ["group", "supergroup"]:
+        member = await message.chat.get_member(message.from_user.id)
+        if member.status not in ["administrator", "creator"]:
+            if re.search(r"(https?://[^\s]+|t\.me/[^\s]+)", text):
+                try:
+                    await message.delete()
+                    warn = await message.answer(f"⚠️ يمنع إرسال الروابط يا {message.from_user.first_name}!")
+                    await asyncio.sleep(4)
+                    await warn.delete()
+                    return
+                except Exception:
+                    pass
+
+    # 4. الردود التفاعلية
+    for key, replies in AUTO_RESPONSES.items():
+        if key in text.lower():
+            await message.reply(random.choice(replies))
+            break
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
